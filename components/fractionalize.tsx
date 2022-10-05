@@ -132,7 +132,7 @@ export function Fractionalize() {
         <Stack gap={0}>
           <Text>Owners</Text>
           {owners.map(({ address, amount }, index) => (
-            <Flex gap={4} mb={2}>
+            <Flex gap={4} mb={2} key={address}>
               <Input
                 placeholder="Address"
                 value={address}
