@@ -1,12 +1,6 @@
 import { useWallet } from "@cosmos-kit/react";
 import { useEffect, useState } from "react";
 
-interface Nft {
-  name: string;
-  symbol: string;
-  imageUri: string;
-}
-
 export function useTokenBalance(token: string, user: string) {
   const { getCosmWasmClient } = useWallet();
   const [balance, setBalance] = useState<number | null>(null);
@@ -16,7 +10,7 @@ export function useTokenBalance(token: string, user: string) {
       return;
     }
 
-    async function pullNft() {
+    async function pullTokenBalance() {
       const client = await getCosmWasmClient();
       const result = await client?.queryContractSmart(token, {
         balance: { address: user },
@@ -27,9 +21,9 @@ export function useTokenBalance(token: string, user: string) {
 
       console.log(">>> token balance", result);
       // todo: probably fromWei
-      setBalance(result.balance);
+      setBalance(parseInt(result.balance));
     }
-    pullNft();
+    pullTokenBalance();
   }, [token, user, getCosmWasmClient]);
 
   return balance;

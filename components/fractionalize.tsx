@@ -1,11 +1,6 @@
-import { Asset, AssetList } from "@chain-registry/types";
 import { useWallet } from "@cosmos-kit/react";
-import BigNumber from "bignumber.js";
-import { assets } from "chain-registry";
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import {
-  Box,
   Button,
   Flex,
   Image,
@@ -14,17 +9,10 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
+import { SigningCosmWasmClient, toBinary } from "@cosmjs/cosmwasm-stargate";
 
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { fractionalizer } from "../config";
 import { useNftDetails } from "../hooks/use-nft";
-
-const chainName = "juno";
-const chainassets: AssetList = assets.find(
-  (chain) => chain.chain_name === chainName
-) as AssetList;
-const coin: Asset = chainassets.assets.find(
-  (asset) => asset.base === "ujuno"
-) as Asset;
 
 export function Fractionalize() {
   const [collection, setCollection] = useState("");
@@ -35,47 +23,72 @@ export function Fractionalize() {
     { address: "", amount: "" },
   ]);
 
+  const [submitting, setSubmitting] = useState(false);
   const nft = useNftDetails(collection, tokenId);
-
-  const { setCurrentChain, currentWallet, walletStatus, getCosmWasmClient } =
-    useWallet();
-
-  useEffect(() => {
-    setCurrentChain(chainName);
-  }, [chainName]);
-
+  const { currentWallet } = useWallet();
   const toast = useToast();
+
+  function error(title: string) {
+    toast({
+      title,
+      status: "error",
+      isClosable: true,
+    });
+  }
 
   const onSubmit = async () => {
     if (!currentWallet) {
-      toast({
-        title: "Wallet not connected",
-        status: "error",
-        isClosable: true,
-      });
+      error("Wallet not connected");
       return;
     }
 
     if (!collection || !tokenId) {
-      toast({
-        title: "Invalid NFT",
-        status: "error",
-        isClosable: true,
-      });
+      error("Invalid NFT");
       return;
     }
 
     if (owners.length === 0) {
-      toast({
-        title: "Invalid owners list",
-        status: "error",
-        isClosable: true,
-      });
+      error("Invalid owners list");
       return;
     }
 
-    const client: SigningCosmWasmClient =
-      await currentWallet.getCosmWasmClient();
+    if (!name || !symbol) {
+      error("Missing token metadata");
+      return;
+    }
+
+    try {
+      const client: SigningCosmWasmClient =
+        await currentWallet.getCosmWasmClient();
+
+      const result = await client.execute(
+        currentWallet.address,
+        collection,
+        {
+          send_nft: {
+            contract: fractionalizer,
+            token_id: tokenId,
+            msg: toBinary({
+              fractionalize: {
+                owners,
+                name,
+                symbol,
+              },
+            }),
+          },
+        },
+        "auto"
+      );
+      toast({
+        status: "success",
+        title: "NFT fractionalized",
+        description: `https://mintscan.io/juno/${result.transactionHash}`,
+      });
+    } catch (e: any) {
+      error(e.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -148,6 +161,7 @@ export function Fractionalize() {
                     o.filter((_, i) => (i === index ? false : true))
                   )
                 }
+                disabled={owners.length === 1}
               >
                 X
               </Button>
@@ -162,7 +176,7 @@ export function Fractionalize() {
         </Button>
       </Flex>
 
-      <Button colorScheme="blue" onClick={onSubmit}>
+      <Button isLoading={submitting} colorScheme="blue" onClick={onSubmit}>
         Submit
       </Button>
     </Stack>

@@ -25,7 +25,7 @@ export function useNftDetails(collection: string, tokenId: string) {
         return;
       }
 
-      console.log(">>>", result);
+      console.log(">>> use nft", result);
       setDetails({
         name: "x",
         symbol: "",
