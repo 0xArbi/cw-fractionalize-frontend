@@ -118,12 +118,13 @@ export function Unfractionalize() {
         </Flex>
       </Flex>
 
-      {tokenMetadata && (
+      {tokenMetadata && cw20Address && (
         <Stack>
           <Text>
             {tokenMetadata.name} ({tokenMetadata.symbol})
           </Text>
-          <Text>Token Supply: {tokenMetadata.totalSupply}</Text>
+          <Text>Address: {cw20Address}</Text>
+          <Text>Total Supply: {tokenMetadata.totalSupply}</Text>
           <Text>Owned tokens: {tokenBalance}</Text>
         </Stack>
       )}

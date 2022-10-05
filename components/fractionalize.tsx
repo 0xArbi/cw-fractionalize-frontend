@@ -58,6 +58,7 @@ export function Fractionalize() {
     }
 
     try {
+      setSubmitting(true);
       const client: SigningCosmWasmClient =
         await currentWallet.getCosmWasmClient();
 
@@ -84,6 +85,11 @@ export function Fractionalize() {
         title: "NFT fractionalized",
         description: `https://mintscan.io/juno/${result.transactionHash}`,
       });
+      setCollection("");
+      setTokenId("");
+      setName("");
+      setSymbol("");
+      setOwners([{ address: "", amount: "" }]);
     } catch (e: any) {
       error(e.message);
     } finally {
