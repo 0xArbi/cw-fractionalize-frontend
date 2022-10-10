@@ -50,7 +50,11 @@ export default function Home() {
             wish to receive ownership shares.
           </Text>
 
-          <a href="https://github.com/0xArbi/cw-fractionalize" target="_blank">
+          <a
+            href="https://github.com/0xArbi/cw-fractionalize"
+            target="_blank"
+            rel="noreferrer"
+          >
             <Text fontSize="sm">Open sourced on Github.</Text>
           </a>
         </Stack>
