@@ -178,7 +178,7 @@ export function Fractionalize() {
           alignSelf="flex-end"
           onClick={() => setOwners((o) => [...o, { address: "", amount: "" }])}
         >
-          New Owner
+          Add owner
         </Button>
       </Flex>
 
